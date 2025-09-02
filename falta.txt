@@ -1,0 +1,1 @@
+em falta que desaparegui el tipus de nivell quan comença el joc, o que el menu vagi separat. 
