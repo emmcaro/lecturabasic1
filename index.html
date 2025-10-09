@@ -1,209 +1,362 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Tutor - Lector de notes</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* ——— ESTILS IDENTICS A L'ANTERIOR VERSIÓ ——— */
-        :root {
-            --bg-color: #1a1a2e;
-            --container-bg: #2c2f33;
-            --primary-color: #bb86fc;
-            --button-color: #E83F89;
-            --text-color: #f0f0f0;
-            --secondary-text-color: #a0a0a0;
-            --correct-color: #4CAF50;
-            --incorrect-color: #F44336;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-        }
-
-        .container {
-            background-color: var(--container-bg);
-            padding: 2.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-            max-width: 90vw;
-            width: 500px;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        h1 {
-            color: var(--primary-color);
-            font-size: 2rem;
-            margin: 0;
-            font-weight: 700;
-        }
-
-        .header-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            color: var(--secondary-text-color);
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        #difficulty-screen { display: flex; flex-direction: column; gap: 1.5rem; }
-        #difficulty-buttons { display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem; }
-
-        .difficulty-button {
-            background-color: var(--primary-color);
-            color: var(--bg-color);
-            border: none;
-            padding: 0.75rem 1.25rem;
-            font-size: 1rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-weight: 600;
-        }
-        .difficulty-button:hover { background-color: #9b59b6; transform: translateY(-2px); }
-
-        canvas {
-            background-color: white;
-            border: 2px solid var(--text-color);
-            border-radius: 0.5rem;
-            width: 100%;
-            max-height: 250px;
-        }
-
-        .note-button {
-            background-color: var(--button-color);
-            color: var(--bg-color);
-            border: none;
-            padding: 0.75rem 1.25rem;
-            font-size: 1.25rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            min-width: 60px;
-            font-weight: 600;
-        }
-
-        .note-button:hover { background-color: #c72b6b; transform: translateY(-2px); }
-        #feedback-area { height: 2rem; display: flex; justify-content: center; align-items: center; font-weight: bold; }
-        #timer { font-weight: bold; color: var(--secondary-text-color); }
-
-        .hidden { display: none; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lectura de notes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-color:#1a1a2e;
+      --container-bg:#2c2f33;
+      --primary-color:#bb86fc;
+      --button-color:#E83F89;
+      --text-color:#f0f0f0;
+      --secondary-text-color:#a0a0a0;
+      --correct-color:#4CAF50;
+      --incorrect-color:#F44336;
+    }
+    body{
+      font-family:'Poppins',sans-serif;
+      background:var(--bg-color);
+      color:var(--text-color);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      margin:0;
+      text-align:center;
+    }
+    .container{
+      background:var(--container-bg);
+      padding:2.2rem;
+      border-radius:1rem;
+      box-shadow:0 10px 20px rgba(0,0,0,0.4);
+      width:500px;
+      max-width:90vw;
+      display:flex;
+      flex-direction:column;
+      gap:1rem;
+    }
+    h1{ color:var(--primary-color); margin:0; font-size:2rem; font-weight:700; }
+    .difficulty-button{
+      background:var(--primary-color);
+      color:var(--bg-color);
+      border:none;
+      padding:0.5rem 1rem;
+      border-radius:9999px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow:0 4px 6px rgba(0,0,0,0.1);
+      margin:0 6px 8px 0;
+    }
+    .difficulty-button:hover{ transform:translateY(-2px); background:#9b59b6; }
+    canvas{ background:white; border:2px solid var(--text-color); border-radius:0.5rem; width:100%; height:auto; max-height:250px; }
+    #controls{ display:flex; flex-wrap:wrap; justify-content:center; gap:0.5rem; }
+    .note-button{
+      background:var(--button-color);
+      color:var(--bg-color);
+      border:none;
+      padding:0.65rem 1.15rem;
+      border-radius:9999px;
+      cursor:pointer;
+      font-weight:600;
+      min-width:60px;
+      box-shadow:0 4px 6px rgba(0,0,0,0.1);
+      font-size:1.1rem;
+    }
+    .note-button:hover{ transform:translateY(-2px); background:#c72b6b; }
+    #feedback-area{ height:2rem; display:flex; align-items:center; justify-content:center; font-weight:700; }
+    #timer{ font-weight:700; color:var(--secondary-text-color); }
+    .next-button{
+      background:var(--primary-color);
+      color:var(--bg-color);
+      border:none;
+      padding:0.5rem 0.9rem;
+      border-radius:9999px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow:0 4px 6px rgba(0,0,0,0.1);
+      margin-top:6px;
+    }
+    .hidden{ display:none; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div id="difficulty-screen">
-            <h1>Lectura de notes</h1>
-            <div id="difficulty-buttons">
-                <button class="difficulty-button" data-level="easy">Fàcil</button>
-                <button class="difficulty-button" data-level="normal">Normal</button>
-                <button class="difficulty-button" data-level="hard">Difícil</button>
-                <button class="difficulty-button" data-level="expert">Expert ⚡</button>
-            </div>
-        </div>
+  <div class="container">
+    <h1>Lectura de notes</h1>
 
-        <div id="game-content" class="hidden">
-            <div class="header-stats">
-                <div>Punts: <span id="score">0</span> / <span id="totalQuestions">0</span></div>
-                <div id="timer">Temps: 10s</div>
-            </div>
-            <canvas id="staffCanvas" width="500" height="250"></canvas>
-            <div id="controls">
-                <button class="note-button" data-note="C">do</button>
-                <button class="note-button" data-note="D">re</button>
-                <button class="note-button" data-note="E">mi</button>
-                <button class="note-button" data-note="F">fa</button>
-                <button class="note-button" data-note="G">sol</button>
-                <button class="note-button" data-note="A">la</button>
-                <button class="note-button" data-note="B">si</button>
-            </div>
-            <div id="feedback-area"></div>
-            <button id="next-button" class="hidden">Següent</button>
-        </div>
-
-        <div id="final-score" class="hidden">
-            <h2>Exercici completat!</h2>
-            <p>Puntuació final: <span id="finalScoreDisplay"></span></p>
-            <button class="play-again-button">Torna a jugar</button>
-        </div>
+    <div id="difficulty-buttons">
+      <p style="margin:0 0 6px 0">Selecciona la dificultat:</p>
+      <button class="difficulty-button" data-level="easy">Fàcil</button>
+      <button class="difficulty-button" data-level="normal">Normal</button>
+      <button class="difficulty-button" data-level="hard">Difícil</button>
+      <button class="difficulty-button" data-level="expert">Expert ⚡</button>
     </div>
 
-    <script>
+    <div class="header-stats" style="display:flex;justify-content:space-between;align-items:center;">
+      <div>Punts: <span id="score">0</span> / <span id="totalQuestions">0</span></div>
+      <div id="timer">Temps: 10s</div>
+    </div>
+
+    <canvas id="staffCanvas" width="500" height="250"></canvas>
+
+    <div id="controls">
+      <button class="note-button" data-note="C">do</button>
+      <button class="note-button" data-note="D">re</button>
+      <button class="note-button" data-note="E">mi</button>
+      <button class="note-button" data-note="F">fa</button>
+      <button class="note-button" data-note="G">sol</button>
+      <button class="note-button" data-note="A">la</button>
+      <button class="note-button" data-note="B">si</button>
+    </div>
+
+    <div id="feedback-area"></div>
+    <button id="next-button" class="next-button hidden">Següent</button>
+  </div>
+
+  <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const canvas = document.getElementById('staffCanvas');
-        const ctx = canvas.getContext('2d');
-        const noteButtons = document.querySelectorAll('.note-button');
-        const feedbackArea = document.getElementById('feedback-area');
-        const scoreDisplay = document.getElementById('score');
-        const totalQuestionsDisplay = document.getElementById('totalQuestions');
-        const nextButton = document.getElementById('next-button');
-        const difficultyButtons = document.querySelectorAll('.difficulty-button');
-        const difficultyScreen = document.getElementById('difficulty-screen');
-        const gameContent = document.getElementById('game-content');
-        const finalScoreScreen = document.getElementById('final-score');
-        const finalScoreDisplay = document.getElementById('finalScoreDisplay');
-        const playAgainButton = document.querySelector('.play-again-button');
-        const timerDisplay = document.getElementById('timer');
+      // elements
+      const canvas = document.getElementById('staffCanvas');
+      const ctx = canvas.getContext('2d');
+      const noteButtons = Array.from(document.querySelectorAll('.note-button'));
+      const feedbackArea = document.getElementById('feedback-area');
+      const scoreDisplay = document.getElementById('score');
+      const totalQuestionsDisplay = document.getElementById('totalQuestions');
+      const nextButton = document.getElementById('next-button');
+      const difficultyButtons = document.querySelectorAll('#difficulty-buttons button[data-level]'); // <<-- select only real difficulty buttons
+      const timerDisplay = document.getElementById('timer');
 
-        // 🎧 Sons
-        const soundWelcome = new Audio('sounds/benvinguda.mp3');
-        const soundCorrect = new Audio('sounds/correcte.mp3');
-        const soundError = new Audio('sounds/error.mp3');
+      // sounds (user will provide files in /sounds)
+      const soundWelcome = new Audio('sounds/benvinguda.mp3');
+      const soundCorrect = new Audio('sounds/correcte.mp3');
+      const soundError = new Audio('sounds/error.mp3');
 
-        const lineHeight = 20;
-        const staffTopY = 100;
-        const MAX_QUESTIONS = 10;
-        let score = 0, totalQuestions = 0, currentNote = null, currentNotes = {}, questionsPool = [];
-        let timer = null, timeLeft = 10, timeLimit = 10, answered = false;
+      // layout / constants
+      const lineHeight = 20;
+      const staffTopY = 100;
+      const MAX_QUESTIONS = 10;
 
-        const staffColor = '#333';
-        const correctColor = getComputedStyle(document.documentElement).getPropertyValue('--correct-color');
-        const incorrectColor = getComputedStyle(document.documentElement).getPropertyValue('--incorrect-color');
+      // game state
+      let currentNotes = {};
+      let questionsPool = [];
+      let questionIndex = 0;   // index into questionsPool
+      let score = 0;
+      let timeLimit = 10;
+      let timeLeft = 10;
+      let timer = null;
+      let answered = false;
+      let currentNote = null;
 
-        const DIFFICULTY_NOTES = {
-            easy: { 'C4': staffTopY + lineHeight * 5, 'D4': staffTopY + lineHeight * 4.5, 'E4': staffTopY + lineHeight * 4, 'F4': staffTopY + lineHeight * 3.5, 'G4': staffTopY + lineHeight * 3 },
-            normal: { 'C4': staffTopY + lineHeight * 5, 'D4': staffTopY + lineHeight * 4.5, 'E4': staffTopY + lineHeight * 4, 'F4': staffTopY + lineHeight * 3.5, 'G4': staffTopY + lineHeight * 3, 'A4': staffTopY + lineHeight * 2.5, 'B4': staffTopY + lineHeight * 2, 'C5': staffTopY + lineHeight * 1.5 },
-            hard: { 'A3': staffTopY + lineHeight * 6, 'B3': staffTopY + lineHeight * 5.5, 'C4': staffTopY + lineHeight * 5, 'D4': staffTopY + lineHeight * 4.5, 'E4': staffTopY + lineHeight * 4, 'F4': staffTopY + lineHeight * 3.5, 'G4': staffTopY + lineHeight * 3, 'A4': staffTopY + lineHeight * 2.5, 'B4': staffTopY + lineHeight * 2, 'C5': staffTopY + lineHeight * 1.5, 'D5': staffTopY + lineHeight * 1, 'E5': staffTopY + lineHeight * 0.5, 'F5': staffTopY, 'G5': staffTopY - lineHeight * 0.5, 'A5': staffTopY - lineHeight },
-        };
-        DIFFICULTY_NOTES.expert = { ...DIFFICULTY_NOTES.hard };
+      const staffColor = '#333';
+      const correctColor = getComputedStyle(document.documentElement).getPropertyValue('--correct-color');
+      const incorrectColor = getComputedStyle(document.documentElement).getPropertyValue('--incorrect-color');
 
-        function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-        function drawStaff(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.strokeStyle=staffColor;ctx.lineWidth=2;for(let i=0;i<5;i++){const y=staffTopY+i*lineHeight;ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(canvas.width-30,y);ctx.stroke();}ctx.font='170px Arial';ctx.fillStyle=staffColor;ctx.fillText('𝄞',40,staffTopY+lineHeight*4.7);}
-        function drawNote(y){ctx.fillStyle=staffColor;ctx.beginPath();ctx.ellipse(canvas.width/2,y,15,12,-Math.PI/16,0,2*Math.PI);ctx.fill();ctx.strokeStyle=staffColor;ctx.lineWidth=2;ctx.beginPath();if(y>staffTopY+lineHeight*2){ctx.moveTo(canvas.width/2+15,y);ctx.lineTo(canvas.width/2+15,y-60);}else{ctx.moveTo(canvas.width/2-15,y);ctx.lineTo(canvas.width/2-15,y+60);}ctx.stroke();}
-        
-        function startTimer(){clearInterval(timer);timeLeft=timeLimit;timerDisplay.textContent=`Temps: ${timeLeft}s`;timer=setInterval(()=>{timeLeft--;timerDisplay.textContent=`Temps: ${timeLeft}s`;if(timeLeft<=0){clearInterval(timer);if(!answered){feedbackArea.textContent='Temps esgotat!';feedbackArea.style.color=incorrectColor;soundError.play();noteButtons.forEach(b=>b.disabled=true);nextButton.classList.remove('hidden');}}},1000);}
-        
-        function generateNewNote(){if(totalQuestions>=questionsPool.length)return endGame();drawStaff();answered=false;const noteName=questionsPool[totalQuestions];currentNote=noteName.charAt(0);drawNote(currentNotes[noteName]);feedbackArea.textContent='';nextButton.classList.add('hidden');noteButtons.forEach(b=>b.disabled=false);totalQuestions++;totalQuestionsDisplay.textContent=totalQuestions;startTimer();}
-        
-        function checkAnswer(sel){if(answered)return;answered=true;clearInterval(timer);if(sel===currentNote){score++;feedbackArea.textContent='Correcte!';feedbackArea.style.color=correctColor;soundCorrect.play();}else{feedbackArea.textContent=`Incorrecte! Era ${currentNote}`;feedbackArea.style.color=incorrectColor;soundError.play();}scoreDisplay.textContent=score;noteButtons.forEach(b=>b.disabled=true);nextButton.classList.remove('hidden');}
+      const DIFFICULTY_NOTES = {
+        easy: { 'C4': staffTopY + lineHeight*5, 'D4': staffTopY + lineHeight*4.5, 'E4': staffTopY + lineHeight*4, 'F4': staffTopY + lineHeight*3.5, 'G4': staffTopY + lineHeight*3 },
+        normal: { 'C4': staffTopY + lineHeight*5, 'D4': staffTopY + lineHeight*4.5, 'E4': staffTopY + lineHeight*4, 'F4': staffTopY + lineHeight*3.5, 'G4': staffTopY + lineHeight*3, 'A4': staffTopY + lineHeight*2.5, 'B4': staffTopY + lineHeight*2, 'C5': staffTopY + lineHeight*1.5 },
+        hard: {
+          'A3': staffTopY + lineHeight*6,
+          'B3': staffTopY + lineHeight*5.5,
+          'C4': staffTopY + lineHeight*5,
+          'D4': staffTopY + lineHeight*4.5,
+          'E4': staffTopY + lineHeight*4,
+          'F4': staffTopY + lineHeight*3.5,
+          'G4': staffTopY + lineHeight*3,
+          'A4': staffTopY + lineHeight*2.5,
+          'B4': staffTopY + lineHeight*2,
+          'C5': staffTopY + lineHeight*1.5,
+          'D5': staffTopY + lineHeight*1,
+          'E5': staffTopY + lineHeight*0.5,
+          'F5': staffTopY,
+          'G5': staffTopY - lineHeight*0.5,
+          'A5': staffTopY - lineHeight
+        }
+      };
+      DIFFICULTY_NOTES.expert = { ...DIFFICULTY_NOTES.hard }; // same notes, less time
 
-        function startGame(level){currentNotes=DIFFICULTY_NOTES[level];difficultyScreen.classList.add('hidden');gameContent.classList.remove('hidden');score=0;totalQuestions=0;scoreDisplay.textContent=score;totalQuestionsDisplay.textContent=totalQuestions;timeLimit=(level==='expert')?3:10;questionsPool=shuffle(Object.keys(currentNotes)).slice(0,10);soundWelcome.play();generateNewNote();}
+      // utility
+      function shuffle(arr){
+        const a = arr.slice();
+        for(let i=a.length-1;i>0;i--){
+          const j = Math.floor(Math.random()*(i+1));
+          [a[i],a[j]] = [a[j],a[i]];
+        }
+        return a;
+      }
 
-        function endGame(){clearInterval(timer);gameContent.classList.add('hidden');finalScoreScreen.classList.remove('hidden');finalScoreDisplay.textContent=`${score}/${totalQuestions}`;}
+      // drawing
+      function drawStaff(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.strokeStyle = staffColor;
+        ctx.lineWidth = 2;
+        for(let i=0;i<5;i++){
+          const y = staffTopY + i*lineHeight;
+          ctx.beginPath();
+          ctx.moveTo(30,y);
+          ctx.lineTo(canvas.width-30,y);
+          ctx.stroke();
+        }
+        ctx.font = '170px Arial';
+        ctx.fillStyle = staffColor;
+        ctx.fillText('𝄞', 40, staffTopY + lineHeight*4.7);
+      }
 
-        difficultyButtons.forEach(b=>b.addEventListener('click',()=>startGame(b.dataset.level)));
-        noteButtons.forEach(b=>b.addEventListener('click',()=>checkAnswer(b.dataset.note)));
-        nextButton.addEventListener('click',generateNewNote);
-        playAgainButton.addEventListener('click',()=>{finalScoreScreen.classList.add('hidden');difficultyScreen.classList.remove('hidden');});
+      function drawNote(y){
+        // note head
+        ctx.fillStyle = staffColor;
+        ctx.beginPath();
+        ctx.ellipse(canvas.width/2, y, 15, 12, -Math.PI/16, 0, Math.PI*2);
+        ctx.fill();
+
+        // stem
+        ctx.strokeStyle = staffColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        if (y > staffTopY + lineHeight*2){
+          ctx.moveTo(canvas.width/2 + 15, y);
+          ctx.lineTo(canvas.width/2 + 15, y - 60);
+        } else {
+          ctx.moveTo(canvas.width/2 - 15, y);
+          ctx.lineTo(canvas.width/2 - 15, y + 60);
+        }
+        ctx.stroke();
+
+        // ledger lines (adicionals)
+        const ledgerLineWidth = 50;
+        const noteX = canvas.width/2;
+        const lowestStaffY = staffTopY + 4*lineHeight;
+        if (y > lowestStaffY){
+          let lineY = lowestStaffY + lineHeight;
+          while(lineY <= y + 1){
+            ctx.beginPath();
+            ctx.moveTo(noteX - ledgerLineWidth/2, lineY);
+            ctx.lineTo(noteX + ledgerLineWidth/2, lineY);
+            ctx.stroke();
+            lineY += lineHeight;
+          }
+        }
+        const highestStaffY = staffTopY;
+        if (y < highestStaffY){
+          let lineY = highestStaffY - lineHeight;
+          while(lineY >= y - 1){
+            ctx.beginPath();
+            ctx.moveTo(noteX - ledgerLineWidth/2, lineY);
+            ctx.lineTo(noteX + ledgerLineWidth/2, lineY);
+            ctx.stroke();
+            lineY -= lineHeight;
+          }
+        }
+      }
+
+      // timer
+      function startTimer(){
+        clearInterval(timer);
+        timeLeft = timeLimit;
+        timerDisplay.textContent = `Temps: ${timeLeft}s`;
+        timer = setInterval(()=>{
+          timeLeft--;
+          timerDisplay.textContent = `Temps: ${timeLeft}s`;
+          if (timeLeft <= 0){
+            clearInterval(timer);
+            if (!answered){
+              // mark as timed out
+              answered = true;
+              feedbackArea.textContent = 'Temps esgotat!';
+              feedbackArea.style.color = incorrectColor;
+              soundError.play();
+              noteButtons.forEach(b => b.disabled = true);
+              nextButton.classList.remove('hidden');
+            }
+          }
+        }, 1000);
+      }
+
+      // show next question (or end)
+      function showQuestion(){
+        // end condition
+        if (questionIndex >= questionsPool.length){
+          clearInterval(timer);
+          feedbackArea.textContent = `Has acabat! Puntuació: ${score} / ${questionsPool.length}`;
+          feedbackArea.style.color = correctColor;
+          noteButtons.forEach(b => b.disabled = true);
+          nextButton.classList.add('hidden');
+          timerDisplay.textContent = `Temps: 0s`;
+          return;
+        }
+
+        // draw staff & note
+        drawStaff();
+        answered = false;
+        const noteName = questionsPool[questionIndex];
+        currentNote = noteName.charAt(0);
+        drawNote(currentNotes[noteName]);
+        feedbackArea.textContent = '';
+        feedbackArea.style.color = '';
+        noteButtons.forEach(b => b.disabled = false);
+        nextButton.classList.add('hidden');
+
+        // update displays
+        scoreDisplay.textContent = score;
+        totalQuestionsDisplay.textContent = (questionIndex + 1).toString();
+
+        // start timer
+        startTimer();
+      }
+
+      // handle answer
+      function checkAnswer(selected){
+        if (answered) return;
+        answered = true;
+        clearInterval(timer);
+        if (selected === currentNote){
+          score++;
+          feedbackArea.textContent = 'Correcte!';
+          feedbackArea.style.color = correctColor;
+          soundCorrect.play();
+        } else {
+          feedbackArea.textContent = `Incorrecte! Era ${currentNote}`;
+          feedbackArea.style.color = incorrectColor;
+          soundError.play();
+        }
+        scoreDisplay.textContent = score;
+        noteButtons.forEach(b => b.disabled = true);
+        nextButton.classList.remove('hidden');
+      }
+
+      // start game
+      function startGame(level){
+        currentNotes = DIFFICULTY_NOTES[level];
+        score = 0;
+        questionIndex = 0;
+        timeLimit = (level === 'expert') ? 3 : 10;
+        questionsPool = shuffle(Object.keys(currentNotes)).slice(0, MAX_QUESTIONS);
+        // initial UI update
+        scoreDisplay.textContent = '0';
+        totalQuestionsDisplay.textContent = '0';
+        soundWelcome.play();
+        showQuestion();
+      }
+
+      // event bindings
+      difficultyButtons.forEach(btn => {
+        btn.addEventListener('click', () => startGame(btn.dataset.level));
+      });
+
+      noteButtons.forEach(btn => {
+        btn.addEventListener('click', () => checkAnswer(btn.dataset.note));
+      });
+
+      nextButton.addEventListener('click', () => {
+        // advance to next question
+        questionIndex++;
+        showQuestion();
+      });
+
+      // initial draw
+      drawStaff();
     });
-    </script>
+  </script>
 </body>
 </html>
-
