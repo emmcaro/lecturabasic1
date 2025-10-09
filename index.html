@@ -117,7 +117,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // elements
       const canvas = document.getElementById('staffCanvas');
       const ctx = canvas.getContext('2d');
       const noteButtons = Array.from(document.querySelectorAll('.note-button'));
@@ -125,23 +124,21 @@
       const scoreDisplay = document.getElementById('score');
       const totalQuestionsDisplay = document.getElementById('totalQuestions');
       const nextButton = document.getElementById('next-button');
-      const difficultyButtons = document.querySelectorAll('#difficulty-buttons button[data-level]'); // <<-- select only real difficulty buttons
+      const difficultyButtons = document.querySelectorAll('#difficulty-buttons button[data-level]');
       const timerDisplay = document.getElementById('timer');
 
-      // sounds (user will provide files in /sounds)
+      // sounds
       const soundWelcome = new Audio('sounds/benvinguda.mp3');
       const soundCorrect = new Audio('sounds/correcte.mp3');
       const soundError = new Audio('sounds/error.mp3');
 
-      // layout / constants
       const lineHeight = 20;
       const staffTopY = 100;
       const MAX_QUESTIONS = 10;
 
-      // game state
       let currentNotes = {};
       let questionsPool = [];
-      let questionIndex = 0;   // index into questionsPool
+      let questionIndex = 0;
       let score = 0;
       let timeLimit = 10;
       let timeLeft = 10;
@@ -174,187 +171,72 @@
           'A5': staffTopY - lineHeight
         }
       };
-      DIFFICULTY_NOTES.expert = { ...DIFFICULTY_NOTES.hard }; // same notes, less time
+      DIFFICULTY_NOTES.expert = { ...DIFFICULTY_NOTES.hard };
 
-      // utility
-      function shuffle(arr){
-        const a = arr.slice();
-        for(let i=a.length-1;i>0;i--){
-          const j = Math.floor(Math.random()*(i+1));
-          [a[i],a[j]] = [a[j],a[i]];
-        }
-        return a;
-      }
+      // shuffle utility
+      function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-      // drawing
+      // draw staff and note
       function drawStaff(){
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.strokeStyle = staffColor;
-        ctx.lineWidth = 2;
-        for(let i=0;i<5;i++){
-          const y = staffTopY + i*lineHeight;
-          ctx.beginPath();
-          ctx.moveTo(30,y);
-          ctx.lineTo(canvas.width-30,y);
-          ctx.stroke();
-        }
-        ctx.font = '170px Arial';
-        ctx.fillStyle = staffColor;
-        ctx.fillText('𝄞', 40, staffTopY + lineHeight*4.7);
+        ctx.strokeStyle=staffColor; ctx.lineWidth=2;
+        for(let i=0;i<5;i++){ const y = staffTopY + i*lineHeight; ctx.beginPath(); ctx.moveTo(30,y); ctx.lineTo(canvas.width-30,y); ctx.stroke(); }
+        ctx.font='170px Arial'; ctx.fillStyle=staffColor; ctx.fillText('𝄞',40,staffTopY+lineHeight*4.7);
       }
 
       function drawNote(y){
-        // note head
-        ctx.fillStyle = staffColor;
-        ctx.beginPath();
-        ctx.ellipse(canvas.width/2, y, 15, 12, -Math.PI/16, 0, Math.PI*2);
-        ctx.fill();
-
-        // stem
-        ctx.strokeStyle = staffColor;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        if (y > staffTopY + lineHeight*2){
-          ctx.moveTo(canvas.width/2 + 15, y);
-          ctx.lineTo(canvas.width/2 + 15, y - 60);
-        } else {
-          ctx.moveTo(canvas.width/2 - 15, y);
-          ctx.lineTo(canvas.width/2 - 15, y + 60);
-        }
+        ctx.fillStyle=staffColor; ctx.beginPath(); ctx.ellipse(canvas.width/2, y, 15, 12, -Math.PI/16, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle=staffColor; ctx.lineWidth=2; ctx.beginPath();
+        if(y > staffTopY + lineHeight*2){ ctx.moveTo(canvas.width/2+15,y); ctx.lineTo(canvas.width/2+15,y-60);} 
+        else { ctx.moveTo(canvas.width/2-15,y); ctx.lineTo(canvas.width/2-15,y+60); }
         ctx.stroke();
 
-        // ledger lines (adicionals)
-        const ledgerLineWidth = 50;
-        const noteX = canvas.width/2;
-        const lowestStaffY = staffTopY + 4*lineHeight;
-        if (y > lowestStaffY){
-          let lineY = lowestStaffY + lineHeight;
-          while(lineY <= y + 1){
-            ctx.beginPath();
-            ctx.moveTo(noteX - ledgerLineWidth/2, lineY);
-            ctx.lineTo(noteX + ledgerLineWidth/2, lineY);
-            ctx.stroke();
-            lineY += lineHeight;
-          }
-        }
-        const highestStaffY = staffTopY;
-        if (y < highestStaffY){
-          let lineY = highestStaffY - lineHeight;
-          while(lineY >= y - 1){
-            ctx.beginPath();
-            ctx.moveTo(noteX - ledgerLineWidth/2, lineY);
-            ctx.lineTo(noteX + ledgerLineWidth/2, lineY);
-            ctx.stroke();
-            lineY -= lineHeight;
-          }
-        }
+        const ledgerLineWidth = 50; const noteX = canvas.width/2; const lowestStaffY = staffTopY + 4*lineHeight;
+        if(y > lowestStaffY){ let lineY = lowestStaffY + lineHeight; while(lineY <= y + 1){ ctx.beginPath(); ctx.moveTo(noteX - ledgerLineWidth/2,lineY); ctx.lineTo(noteX + ledgerLineWidth/2,lineY); ctx.stroke(); lineY+=lineHeight;} }
+        const highestStaffY = staffTopY; if(y < highestStaffY){ let lineY=highestStaffY-lineHeight; while(lineY>=y-1){ ctx.beginPath(); ctx.moveTo(noteX - ledgerLineWidth/2,lineY); ctx.lineTo(noteX + ledgerLineWidth/2,lineY); ctx.stroke(); lineY-=lineHeight;} }
       }
 
       // timer
       function startTimer(){
-        clearInterval(timer);
-        timeLeft = timeLimit;
-        timerDisplay.textContent = `Temps: ${timeLeft}s`;
-        timer = setInterval(()=>{
-          timeLeft--;
-          timerDisplay.textContent = `Temps: ${timeLeft}s`;
-          if (timeLeft <= 0){
-            clearInterval(timer);
-            if (!answered){
-              // mark as timed out
-              answered = true;
-              feedbackArea.textContent = 'Temps esgotat!';
-              feedbackArea.style.color = incorrectColor;
-              soundError.play();
-              noteButtons.forEach(b => b.disabled = true);
-              nextButton.classList.remove('hidden');
-            }
-          }
-        }, 1000);
+        clearInterval(timer); timeLeft=timeLimit; timerDisplay.textContent=`Temps: ${timeLeft}s`;
+        timer=setInterval(()=>{ timeLeft--; timerDisplay.textContent=`Temps: ${timeLeft}s`;
+          if(timeLeft<=0){ clearInterval(timer); if(!answered){answered=true; feedbackArea.textContent='Temps esgotat!'; feedbackArea.style.color=incorrectColor; soundError.play(); noteButtons.forEach(b=>b.disabled=true); nextButton.classList.remove('hidden');}} },1000);
       }
 
-      // show next question (or end)
       function showQuestion(){
-        // end condition
-        if (questionIndex >= questionsPool.length){
-          clearInterval(timer);
-          feedbackArea.textContent = `Has acabat! Puntuació: ${score} / ${questionsPool.length}`;
-          feedbackArea.style.color = correctColor;
-          noteButtons.forEach(b => b.disabled = true);
-          nextButton.classList.add('hidden');
-          timerDisplay.textContent = `Temps: 0s`;
-          return;
+        if(questionIndex>=questionsPool.length){
+          clearInterval(timer); feedbackArea.textContent=`Has acabat! Puntuació: ${score} / ${questionsPool.length}`; feedbackArea.style.color=correctColor;
+          noteButtons.forEach(b=>b.disabled=true); nextButton.classList.add('hidden'); timerDisplay.textContent='Temps: 0s'; return;
         }
-
-        // draw staff & note
-        drawStaff();
-        answered = false;
-        const noteName = questionsPool[questionIndex];
-        currentNote = noteName.charAt(0);
+        drawStaff(); answered=false;
+        const noteName=questionsPool[questionIndex];
+        currentNote=noteName.charAt(0);
         drawNote(currentNotes[noteName]);
-        feedbackArea.textContent = '';
-        feedbackArea.style.color = '';
-        noteButtons.forEach(b => b.disabled = false);
-        nextButton.classList.add('hidden');
-
-        // update displays
-        scoreDisplay.textContent = score;
-        totalQuestionsDisplay.textContent = (questionIndex + 1).toString();
-
-        // start timer
+        feedbackArea.textContent=''; feedbackArea.style.color=''; noteButtons.forEach(b=>b.disabled=false); nextButton.classList.add('hidden');
+        scoreDisplay.textContent=score; totalQuestionsDisplay.textContent=(questionIndex+1).toString();
         startTimer();
       }
 
-      // handle answer
       function checkAnswer(selected){
-        if (answered) return;
-        answered = true;
-        clearInterval(timer);
-        if (selected === currentNote){
-          score++;
-          feedbackArea.textContent = 'Correcte!';
-          feedbackArea.style.color = correctColor;
-          soundCorrect.play();
-        } else {
-          feedbackArea.textContent = `Incorrecte! Era ${currentNote}`;
-          feedbackArea.style.color = incorrectColor;
-          soundError.play();
-        }
-        scoreDisplay.textContent = score;
-        noteButtons.forEach(b => b.disabled = true);
-        nextButton.classList.remove('hidden');
+        if(answered) return; answered=true; clearInterval(timer);
+        if(selected===currentNote){ score++; feedbackArea.textContent='Correcte!'; feedbackArea.style.color=correctColor; soundCorrect.play(); }
+        else { feedbackArea.textContent=`Incorrecte! Era ${currentNote}`; feedbackArea.style.color=incorrectColor; soundError.play(); }
+        scoreDisplay.textContent=score; noteButtons.forEach(b=>b.disabled=true); nextButton.classList.remove('hidden');
       }
 
-      // start game
       function startGame(level){
-        currentNotes = DIFFICULTY_NOTES[level];
-        score = 0;
-        questionIndex = 0;
-        timeLimit = (level === 'expert') ? 3 : 10;
-        questionsPool = shuffle(Object.keys(currentNotes)).slice(0, MAX_QUESTIONS);
-        // initial UI update
-        scoreDisplay.textContent = '0';
-        totalQuestionsDisplay.textContent = '0';
-        soundWelcome.play();
-        showQuestion();
+        currentNotes=DIFFICULTY_NOTES[level]; score=0; questionIndex=0;
+        timeLimit=(level==='expert')?3:10;
+        const noteKeys=Object.keys(currentNotes); questionsPool=[];
+        for(let i=0;i<MAX_QUESTIONS;i++){ questionsPool.push(noteKeys[Math.floor(Math.random()*noteKeys.length)]);}
+        scoreDisplay.textContent='0'; totalQuestionsDisplay.textContent='0';
+        soundWelcome.play(); showQuestion();
       }
 
-      // event bindings
-      difficultyButtons.forEach(btn => {
-        btn.addEventListener('click', () => startGame(btn.dataset.level));
-      });
+      difficultyButtons.forEach(btn=>btn.addEventListener('click',()=>startGame(btn.dataset.level)));
+      noteButtons.forEach(btn=>btn.addEventListener('click',()=>checkAnswer(btn.dataset.note)));
+      nextButton.addEventListener('click',()=>{ questionIndex++; showQuestion(); });
 
-      noteButtons.forEach(btn => {
-        btn.addEventListener('click', () => checkAnswer(btn.dataset.note));
-      });
-
-      nextButton.addEventListener('click', () => {
-        // advance to next question
-        questionIndex++;
-        showQuestion();
-      });
-
-      // initial draw
       drawStaff();
     });
   </script>
